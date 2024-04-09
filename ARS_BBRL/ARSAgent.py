@@ -1,22 +1,3 @@
-#try:
-#	from easypip import easyimport, easyinstall, is_notebook
-#except ModuleNotFoundError as e:
-#    import subprocess
-#    subprocess.run(["pip", "install", "easypip>=1.2.0"])
-#    from easypip import easyimport, easyinstall, is_notebook
-#
-#easyinstall("bbrl>=0.2.2")
-#easyinstall("gymnasium")
-#easyinstall("bbrl_gymnasium>=0.2.0")
-#easyinstall("tensorboard")
-#
-#try:
-#    import bbrl
-#except ImportError:
-#    import subprocess
-#    subprocess.run(["pip", "install", "git+https://github.com/osigaud/bbrl.git"])
-#    import bbrl
-    
 import torch
 import numpy as np
 
@@ -46,6 +27,7 @@ class ARSAgent(Agent):
         self.mu = torch.zeros(M.shape[1])
         self.delta = torch.zeros_like(self.M)
 
+
     def forward(self, t, **kwargs):
         """
         Forward pass of the ARS agent.
@@ -56,6 +38,7 @@ class ARSAgent(Agent):
         """
         raise NotImplementedError("forward must be implemented in subclasses.")
 
+
     def set_delta(self, delta):
         """
         Set the perturbation vector.
@@ -65,9 +48,11 @@ class ARSAgent(Agent):
         """
         self.delta = torch.tensor(delta, dtype=torch.float32)
 
+
     def reset_delta(self):
         """Reset the perturbation vector."""
         self.delta = torch.zeros_like(self.M)
+
 
     def update_policy(self, deltas, states_encountered, rewards_plus, rewards_minus):
         """
@@ -81,23 +66,18 @@ class ARSAgent(Agent):
         """
         rewards_plus_list = np.array([tensor.item() for tensor in rewards_plus])
         rewards_minus_list = np.array([tensor.item() for tensor in rewards_minus])
-        # print(f"{deltas=}")
-        # print(f"{rewards_plus_list=}")
-        # print(f"{rewards_minus_list=}")
+        
         scores = list(zip(deltas, rewards_plus_list, rewards_minus_list))
-        # print(f"{scores=}")
         scores.sort(key=lambda x: max(x[1], x[2]), reverse=True)
-        # print(f"{scores=}")
+        
         top_scores = scores[:self.b]
-        # print(f"{top_scores=}")
 
         # Update policy weights using the top b perturbations
         update_step = np.zeros_like(self.M.numpy())
         sigma_rewards = np.std([r for _, r_plus, r_minus in top_scores for r in (r_plus, r_minus)]) + self.epsilon
+        
         for delta, reward_plus, reward_minus in top_scores:
-            update_step += (reward_plus - reward_minus) * np.array(delta)
+            update_step += (reward_plus - reward_minus) * delta
 
         # Apply update to policy weights
         self.M += (self.alpha / (self.b * sigma_rewards)) * torch.from_numpy(update_step)
-        # print(self.M)
-        # print()

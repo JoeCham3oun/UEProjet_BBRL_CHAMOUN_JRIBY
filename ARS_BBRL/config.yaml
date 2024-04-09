@@ -1,11 +1,20 @@
+logger:
+  classname: bbrl.utils.logger.TFLogger
+  log_dir: ./output/tblogs/${gym_env.env_name}/ars-${current_time:}
+  cache_size: 10000
+  every_n_seconds: 10
+  verbose: false
 algorithm:
+  seed: 1
+  n_envs: 1
   'N': 60
   nu: 0.03
   b: 15
-  alpha: 0.01
+  alpha: 0.001
   epsilon: 1.0e-06
   num_episodes: 100
   v2: false
 gym_env:
   env_name: Pendulum-v1
 verbose: true
+render: true

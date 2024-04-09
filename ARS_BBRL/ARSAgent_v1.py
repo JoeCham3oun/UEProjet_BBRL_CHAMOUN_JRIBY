@@ -16,27 +16,11 @@ class ARSAgent_v1(ARSAgent):
             t (int): Time step.
             **kwargs: Additional arguments.
         """
-        obs = self.get(("obs", t))
-        action = torch.mm(self.M + self.nu * self.delta, obs.unsqueeze(1)).squeeze()
-
+        obs = self.get(("env/env_obs", t)).t()
+        # thetas = obs.squeeze().tolist()
+        # theta = np.arctan2(thetas[1], thetas[0])
+        # plot_pendulum(theta)
+        action = torch.mm(self.M + self.nu * self.delta, obs)
         if isinstance(self.gym_env.action_space, gym.spaces.Discrete):
-            action_list = [tensor.item() for tensor in action]
-            try:
-                action = 1 if action_list > 0 else 0
-            except ValueError as ve:
-                action = np.argmax(action_list)
-            except TypeError as te:
-              normalized_actions = np.clip(action_list, -1, 1)
-              action = 1 if normalized_actions[0] > 0 else 0
-
-        else:
-            try:
-                action = np.clip(action, self.gym_env.action_space.low, self.gym_env.action_space.high)
-            except ValueError as ve:
-                action = np.clip(np.argmax(action), self.gym_env.action_space.low, self.gym_env.action_space.high)
-
-        action = torch.tensor(action, dtype=torch.float32)
-        action = action.view(-1)
-        action = action.to('cpu')
-        action = action.float()
+            action = action.argmax().unsqueeze(0)
         self.set(("action", t), action)

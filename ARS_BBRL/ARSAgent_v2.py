@@ -25,6 +25,8 @@ class ARSAgent_v2(ARSAgent):
         if isinstance(self.gym_env.action_space, gym.spaces.Discrete):
             max_values, _ = torch.max(action, dim=1)
             action = torch.argmax(max_values).unsqueeze(0)
+        else:
+            action = action[:, :1]
         self.set(("action", t), action)
 
 

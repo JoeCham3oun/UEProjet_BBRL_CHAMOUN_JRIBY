@@ -94,13 +94,13 @@ def run_ars(cfg: DictConfig):
 
 		for delta in deltas:
 			rewards, states, nb_steps = run_episode_with_perturbation(ars_agent, delta, eval_agent)
-			rewards_plus.append(rewards)
+			rewards_plus.append(rewards.item())
 			states_encountered.extend(states)
 			nb_steps_rmax += nb_steps
 			logger.add_log("reward_max", rewards, nb_steps_rmax)
 			
 			rewards, states, nb_steps = run_episode_with_perturbation(ars_agent, -delta, eval_agent)
-			rewards_minus.append(rewards)
+			rewards_minus.append(rewards.item())
 			states_encountered.extend(states)
 			nb_steps_rmin += nb_steps
 			logger.add_log("reward_min", rewards, nb_steps_rmin)
@@ -110,7 +110,7 @@ def run_ars(cfg: DictConfig):
 		average_reward_minus = np.mean(rewards_minus)
 		std_reward = np.std(rewards_plus + rewards_minus)
 		episode_reward = (average_reward_plus + average_reward_minus) / 2
-		episode_best_reward = max(max(rewards_plus), max(rewards_minus)).squeeze()
+		episode_best_reward = max(max(rewards_plus), max(rewards_minus))
 		
 		# Update best reward
 		if episode_best_reward > best_reward:

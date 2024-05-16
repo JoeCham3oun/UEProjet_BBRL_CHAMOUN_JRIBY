@@ -64,10 +64,7 @@ class ARSAgent(Agent):
             rewards_plus (list): Rewards obtained with positive perturbations.
             rewards_minus (list): Rewards obtained with negative perturbations.
         """
-        rewards_plus_list = np.array([tensor.item() for tensor in rewards_plus])
-        rewards_minus_list = np.array([tensor.item() for tensor in rewards_minus])
-        
-        scores = list(zip(deltas, rewards_plus_list, rewards_minus_list))
+        scores = list(zip(deltas, rewards_plus, rewards_minus))
         scores.sort(key=lambda x: max(x[1], x[2]), reverse=True)
         
         top_scores = scores[:self.b]

@@ -8,9 +8,19 @@ from ARSAgent import ARSAgent
 #                                 ARS AGENT V2                                 #
 ################################################################################
 class ARSAgent_v2(ARSAgent):
+    """
+    ARSAgent_v2 class representing an updated version of the Augmented Random Search (ARS) agent.
+
+    Inherits from:
+        ARSAgent (ARSAgent.ARSAgent): Base class for ARS agents.
+
+    Attributes:
+        Inherits attributes from ARSAgent base class.
+    """
+    
     def forward(self, t, **kwargs):
         """
-        Forward pass of the ARS agent.
+        Forward pass of the ARS agent for ARS version 2.
 
         Args:
             t (int): Time step.
@@ -22,13 +32,14 @@ class ARSAgent_v2(ARSAgent):
         product = torch.mm(M_plus_delta, sigma_sqrt_inv)
         diff = obs - self.mu
         action = torch.mm(product, diff)
+        
         if isinstance(self.gym_env.action_space, gym.spaces.Discrete):
             max_values, _ = torch.max(action, dim=1)
             action = torch.argmax(max_values).unsqueeze(0)
         else:
             action = action[:, :1]
+            
         self.set(("action", t), action)
-
 
     def update_policy(self, deltas, states_encountered, rewards_plus, rewards_minus):
         """

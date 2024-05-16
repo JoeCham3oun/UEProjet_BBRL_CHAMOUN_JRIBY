@@ -1,23 +1,29 @@
+# Configuration file for ARS-based reinforcement learning agent
+
+# Logger configuration
 logger:
-  classname: bbrl.utils.logger.TFLogger
-  log_dir: ./output/tblogs/${gym_env.env_name}/ars-${current_time:}
-  cache_size: 10000
-  every_n_seconds: 10
-  verbose: false
+  classname: bbrl.utils.logger.TFLogger  # Logger implementation class
+  log_dir: ./output/tblogs/${gym_env.env_name}/ars-${current_time:}  # Directory path for log files
+  cache_size: 10000  # Size of the log cache
+  every_n_seconds: 10  # Logging frequency in seconds
+  verbose: false  # Verbosity flag for logging details
 
+# Algorithm settings
 algorithm:
-  seed: 1
-  n_envs: 1
-  N: 60
-  nu: 0.03
-  b: 15
-  alpha: 0.001
-  epsilon: 1.0e-06
-  num_episodes: 100
-  v2: false
+  seed: 1  # Random seed for reproducibility
+  n_envs: 1  # Number of parallel environments
+  N: 60  # Number of perturbations per policy update
+  nu: 0.03  # Exploration noise magnitude
+  b: 15  # Number of top perturbations selected for policy updates
+  alpha: 0.001  # Learning rate for policy updates
+  epsilon: 1.0e-06  # Small value added to standard deviation for stability
+  num_episodes: 200  # Total number of training episodes
+  v2: false  # Flag indicating ARS version (v2 if True, v1 if False)
 
+# Gym environment configuration
 gym_env:
-  env_name: CartPole-v1
+  env_name: CartPole-v1  # Name of the Gym environment used for training
 
-verbose: true
-render: true
+# General settings
+verbose: true  # Verbosity flag for displaying additional information
+render: true  # Flag for rendering the environment during training

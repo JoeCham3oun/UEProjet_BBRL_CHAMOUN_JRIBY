@@ -14,6 +14,15 @@ from Logger import Logger
 
 # Create the environment Agent
 def create_env_agent(cfg):
+    """
+    Create and initialize a parallel Gym environment agent.
+
+    Args:
+        cfg (DictConfig): Configuration dictionary.
+
+    Returns:
+        ParallelGymAgent: Initialized parallel Gym environment agent.
+    """
     env_agent = ParallelGymAgent(
         partial(make_env, cfg.gym_env.env_name),
         cfg.algorithm.n_envs,
@@ -23,6 +32,16 @@ def create_env_agent(cfg):
 
 # Create the ARS Agent
 def create_ARS_agent(cfg, env_agent):
+    """
+    Create and initialize an ARS (Augmented Random Search) agent.
+
+    Args:
+        cfg (DictConfig): Configuration dictionary.
+        env_agent (ParallelGymAgent): Parallel Gym environment agent.
+
+    Returns:
+        ARSAgent_v1 or ARSAgent_v2: Initialized ARS agent based on configuration.
+    """
     observation_dim, action_dim = env_agent.get_obs_and_actions_sizes()
     M = np.zeros((action_dim, observation_dim))
 
@@ -35,6 +54,15 @@ def create_ARS_agent(cfg, env_agent):
 
 
 def init_agents(cfg):
+    """
+    Initialize environment agent, ARS agent, and evaluation agent.
+
+    Args:
+        cfg (DictConfig): Configuration dictionary.
+
+    Returns:
+        tuple: Tuple containing environment agent, ARS agent, and evaluation agent.
+    """
     env_agent = create_env_agent(cfg)
     ars_agent = create_ARS_agent(cfg, env_agent)
     composed_agent = Agents(env_agent, ars_agent)
@@ -44,6 +72,17 @@ def init_agents(cfg):
 
 
 def run_episode_with_perturbation(ars_agent, delta, eval_agent):
+    """
+    Run an episode with perturbation applied to the ARS agent.
+
+    Args:
+        ars_agent (ARSAgent): ARS agent instance.
+        delta (numpy.ndarray): Perturbation vector.
+        eval_agent (TemporalAgent): Evaluation agent.
+
+    Returns:
+        tuple: Tuple containing episode rewards, states encountered, and number of steps.
+    """
 	ars_agent.set_delta(delta)
 	workspace = Workspace()
 	eval_agent(workspace, t=0, stop_variable="env/done")
@@ -56,6 +95,16 @@ def run_episode_with_perturbation(ars_agent, delta, eval_agent):
 
 
 def display_results(rewards_plus_logs, rewards_minus_logs, best_rewards_log, std_rewards_log, cfg):
+	"""
+    Display ARS performance results across episodes.
+
+    Args:
+        rewards_plus_logs (list): List of average rewards for positive perturbations.
+        rewards_minus_logs (list): List of average rewards for negative perturbations.
+        best_rewards_log (list): List of best rewards achieved.
+        std_rewards_log (list): List of standard deviations of rewards.
+        cfg (DictConfig): Configuration dictionary.
+    """
     plt.figure(figsize=(10, 6))
     episodes = range(cfg.algorithm.num_episodes)
     
@@ -73,6 +122,12 @@ def display_results(rewards_plus_logs, rewards_minus_logs, best_rewards_log, std
 
 
 def run_ars(cfg: DictConfig):
+    """
+    Run the Augmented Random Search (ARS) algorithm.
+
+    Args:
+        cfg (DictConfig): Configuration dictionary.
+    """
 	logger = Logger(cfg)
 	env_agent, ars_agent, eval_agent = init_agents(cfg)
 	
@@ -86,12 +141,15 @@ def run_ars(cfg: DictConfig):
 	nb_steps_rmax = 0
 	nb_steps_rmin = 0
 
+    # Iterate over episodes
 	for episode in range(cfg.algorithm.num_episodes):
+		# Generate random perturbations
 		deltas = np.random.randn(ars_agent.N, *ars_agent.M.shape)
 		rewards_plus = []     # To store rewards when adding perturbations
 		rewards_minus = []    # To store rewards when subtracting perturbations
 		states_encountered = []
 
+        # Evaluate perturbations
 		for delta in deltas:
 			rewards, states, nb_steps = run_episode_with_perturbation(ars_agent, delta, eval_agent)
 			rewards_plus.append(rewards.item())
@@ -134,10 +192,12 @@ def run_ars(cfg: DictConfig):
 				print(f"New Best Reward: {best_reward}")
 			print()
 
+        # Update ARS agent's policy based on perturbation results
 		ars_agent.update_policy(deltas, states_encountered, rewards_plus, rewards_minus)
 
 	display_results(rewards_plus_logs, rewards_minus_logs, best_rewards_log, std_rewards_log, cfg)
 	
+	# Optionally render and display video of the best policy
 	if cfg.render:
 		version = "v2" if cfg.algorithm.v2 else "v1"
 		env = make_env(cfg.gym_env.env_name, render_mode="rgb_array")

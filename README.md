@@ -70,4 +70,4 @@ The `ARS_BBRL.ipynb` notebook provides an interactive environment to experiment 
 ## Authors
 
 Joe CHAMOUN  
-Jawher Jriby
+Jawher JRIBY

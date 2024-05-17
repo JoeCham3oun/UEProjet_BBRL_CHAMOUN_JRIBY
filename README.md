@@ -20,6 +20,7 @@ This repository contains an implementation of the Augmented Random Search (ARS) 
     - **CHAMOUN_JRIBY_ARS_BBRL.ipynb**: Implementation of the ARS algorithm using BBRL.
     - **CHAMOUN_JRIBY_ARS.ipynb**: Implementation of the ARS algorithm without using BBRL.
     - **CHAMOUN_JRIBY_BRS.ipynb**: Implementation of a related algorithm (BRS: Basic Random Search) without using BBRL.
+- **Rapport.pdf**: Analytical report comparing the performance and results of ARS with Cross-Entropy Method (CEM).
 - **README.md**: Documentation file providing an overview of the project and instructions for usage.
 
 ## Usage
